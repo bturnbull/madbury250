@@ -3,7 +3,8 @@
 //
 
 #define STEP_DURATION     50       // milliseconds
-#define SHORT              5       // number of STEP_DURATIONs for a short animation state
+#define SHORT              2       // number of STEP_DURATIONs for a short animation state
+#define MEDIUM             5       // number of STEP_DURATIONs for a medium animation state
 #define LONG              20       // number of STEP_DURATIONs for a long animation state
 #define RESTART            0       // end of state list marker
 
@@ -28,31 +29,31 @@ typedef struct {
 } animation_t;
 
 static state_t fullon_states[] = {
-  { 0b0000111111111111, SHORT },
+  { 0b0000111111111111, MEDIUM },
   { 0b0000111111111111, RESTART }
 };
 static animation_t fullon = { fullon_states, fullon_states };
 
 static state_t fulloff_states[] = {
-  { 0b0000000000000000, SHORT },
+  { 0b0000000000000000, MEDIUM },
   { 0b0000000000000000, RESTART }
 };
 static animation_t fulloff = { fulloff_states, fulloff_states };
 
 static state_t grow_states[] = {
-  { 0b0000000110000001, SHORT },
-  { 0b0000001111000011, SHORT },
-  { 0b0000011111100111, SHORT },
-  { 0b0000111111111111, SHORT },
+  { 0b0000000110000001, MEDIUM },
+  { 0b0000001111000011, MEDIUM },
+  { 0b0000011111100111, MEDIUM },
+  { 0b0000111111111111, MEDIUM },
   { 0b0000000000000001, RESTART }
 };
 static animation_t grow = { grow_states, grow_states };
 
 static state_t chaser_states[] = {
-  { 0b0000001111000011, SHORT },
-  { 0b0000011001100110, SHORT },
-  { 0b0000110000111100, SHORT },
-  { 0b0000100110011001, SHORT },
+  { 0b0000001111000011, MEDIUM },
+  { 0b0000011001100110, MEDIUM },
+  { 0b0000110000111100, MEDIUM },
+  { 0b0000100110011001, MEDIUM },
   { 0b0000001111000011, RESTART }
 };
 static animation_t chaser = { chaser_states, chaser_states };
@@ -96,34 +97,52 @@ static state_t layers_states[] = {
 static animation_t layers = { layers_states, layers_states };
 
 static state_t updown_states[] = {
-  { 0b0000000000000000, SHORT },
-  { 0b0000000000000001, SHORT },
-  { 0b0000000000000011, SHORT },
-  { 0b0000000000000111, SHORT },
-  { 0b0000000000001111, SHORT },
-  { 0b0000000010001111, SHORT },
-  { 0b0000000011001111, SHORT },
-  { 0b0000000011101111, SHORT },
-  { 0b0000000011111111, SHORT },
-  { 0b0000000111111111, SHORT },
-  { 0b0000001111111111, SHORT },
-  { 0b0000011111111111, SHORT },
+  { 0b0000000000000000, MEDIUM },
+  { 0b0000000000000001, MEDIUM },
+  { 0b0000000000000011, MEDIUM },
+  { 0b0000000000000111, MEDIUM },
+  { 0b0000000000001111, MEDIUM },
+  { 0b0000000010001111, MEDIUM },
+  { 0b0000000011001111, MEDIUM },
+  { 0b0000000011101111, MEDIUM },
+  { 0b0000000011111111, MEDIUM },
+  { 0b0000000111111111, MEDIUM },
+  { 0b0000001111111111, MEDIUM },
+  { 0b0000011111111111, MEDIUM },
   { 0b0000111111111111, LONG },
-  { 0b0000011111111111, SHORT },
-  { 0b0000001111111111, SHORT },
-  { 0b0000000111111111, SHORT },
-  { 0b0000000011111111, SHORT },
-  { 0b0000000011101111, SHORT },
-  { 0b0000000011001111, SHORT },
-  { 0b0000000010001111, SHORT },
-  { 0b0000000000001111, SHORT },
-  { 0b0000000000000111, SHORT },
-  { 0b0000000000000011, SHORT },
-  { 0b0000000000000001, SHORT },
+  { 0b0000011111111111, MEDIUM },
+  { 0b0000001111111111, MEDIUM },
+  { 0b0000000111111111, MEDIUM },
+  { 0b0000000011111111, MEDIUM },
+  { 0b0000000011101111, MEDIUM },
+  { 0b0000000011001111, MEDIUM },
+  { 0b0000000010001111, MEDIUM },
+  { 0b0000000000001111, MEDIUM },
+  { 0b0000000000000111, MEDIUM },
+  { 0b0000000000000011, MEDIUM },
+  { 0b0000000000000001, MEDIUM },
   { 0b0000000000000000, LONG },
   { 0b0000000000000000, RESTART }
 };
 static animation_t updown = { updown_states, updown_states };
+
+static state_t bootup_states[] = {
+  { 0b0000000000000000, MEDIUM },
+  { 0b0000000000000001, MEDIUM },
+  { 0b0000000000000011, MEDIUM },
+  { 0b0000000000000111, MEDIUM },
+  { 0b0000000000001111, MEDIUM },
+  { 0b0000000010001111, MEDIUM },
+  { 0b0000000011001111, MEDIUM },
+  { 0b0000000011101111, MEDIUM },
+  { 0b0000000011111111, MEDIUM },
+  { 0b0000000111111111, MEDIUM },
+  { 0b0000001111111111, MEDIUM },
+  { 0b0000011111111111, MEDIUM },
+  { 0b0000111111111111, LONG },
+  { 0b0000000000000000, RESTART }
+};
+static animation_t bootup = { bootup_states, bootup_states };
 
 static animation_t* animations[] = {
   &fullon,
@@ -189,10 +208,10 @@ void setup() {
 
   // run a little lightshow to check each channel - don't react to control input
   for (int i = 0; ; ++i) {
-    if (grow.states[i].duration == RESTART) { break; }
+    if (bootup.states[i].duration == RESTART) { break; }
 
-    set_channels(&(grow.states[i]));
-    delay(STEP_DURATION * grow.states[i].duration);
+    set_channels(&(bootup.states[i]));
+    delay(STEP_DURATION * bootup.states[i].duration);
   }
 }
 
